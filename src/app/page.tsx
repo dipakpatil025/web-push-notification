@@ -1,6 +1,5 @@
 'use client';
 
-import useFcmToken from "@/utils/hooks/useFcmToken";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { useEffect, useState } from "react";
 import firebaseApp from "@/utils/firebase/firebase";
@@ -8,6 +7,10 @@ import firebaseApp from "@/utils/firebase/firebase";
 export default function Home() {
 
   const [token, setToken] = useState('')
+  const [delay, setDelay] = useState<string>('');
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState('')
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
@@ -15,6 +18,10 @@ export default function Home() {
 
       const unsubscribe = onMessage(messaging, (payload) => {
         console.log('Foreground push notification received:', payload);
+        alert(JSON.stringify({
+          title: payload.notification?.title,
+          body: payload.notification?.body
+        }, null, 2));
         // Handle the received push notification while the app is in the foreground
         // You can display a notification or update the UI based on the payload
       });
@@ -26,6 +33,8 @@ export default function Home() {
   }, []);
 
   async function handleAskNotifications() {
+
+
     if ("Notification" in window) {
       const permission = Notification.permission;
       if (permission === "granted") {
@@ -48,7 +57,7 @@ export default function Home() {
         });
         if (currentToken) {
           setToken(currentToken)
-          console.log('token -> ',currentToken)
+          console.log('token -> ', currentToken)
         } else {
           console.log(
             'No registration token available. Request permission to generate one.'
@@ -70,9 +79,47 @@ export default function Home() {
              });
   }
 
+
   return <div>
     <button onClick={handleAskNotifications}>Ask Notification</button>
 
     <div onClick={copyToClipboard}>{token}</div>
+    <form>
+      <label>Delay</label>
+      <input
+        type="number"
+        onChange={(e) => {
+          const value = e.target.value;
+          console.log(Number(value))
+          setDelay(value)
+        }}
+        value={delay}
+      />
+
+      <label>Title</label>
+      <input type="text" onChange={(e) => {
+        setTitle(e.target.value)
+      }} value={title}/>
+
+      <label>Body</label>
+      <input type="text" onChange={(e) => {
+        setBody(e.target.value)
+      }} value={body}/>
+    </form>
+    <button onClick={async () => {
+      await fetch('/api/send-push-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          registrationToken: token,
+          title: title,
+          body: body,
+          delay: Number(delay) ?? 0
+        })
+      })
+    }}>Send Notification
+    </button>
   </div>;
 }
