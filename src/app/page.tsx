@@ -3,15 +3,11 @@
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { useEffect, useState } from "react";
 import firebaseApp from "@/utils/firebase/firebase";
+import { MyForm } from "@/components/my-form";
 
 export default function Home() {
 
-  const [token, setToken] = useState('')
-  const [delay, setDelay] = useState<string>('');
-  const [title, setTitle] = useState('')
-  const [body, setBody] = useState('')
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       const messaging = getMessaging(firebaseApp);
@@ -32,45 +28,9 @@ export default function Home() {
     }
   }, []);
 
-  async function handleAskNotifications() {
-
-
-    if ("Notification" in window) {
-      const permission = Notification.permission;
-      if (permission === "granted") {
-        console.log('granted')
-      } else {
-        const permission = await Notification.requestPermission();
-        if (permission === "granted") {
-          console.log('granted')
-        } else {
-          console.log('Not granted')
-        }
-      }
-
-      if (permission === 'granted') {
-        const messaging = getMessaging(firebaseApp);
-
-        const currentToken = await getToken(messaging, {
-          vapidKey:
-            'BECY6OCKFyotjM1GkUXqLQrUXX_lwdWfd-FzV2QbCTlRbPNhVz4Y2t66B48Vq17Xp44RGAsss_z_CERZsNWEqjc',
-        });
-        if (currentToken) {
-          setToken(currentToken)
-          console.log('token -> ', currentToken)
-        } else {
-          console.log(
-            'No registration token available. Request permission to generate one.'
-          );
-        }
-      }
-    } else {
-      console.error("NotificationsAPI not supported")
-    }
-  }
 
   function copyToClipboard() {
-    navigator.clipboard.writeText((token).toString())
+    navigator.clipboard.writeText(('token').toString())
              .then(() => {
                alert('Copied to clipboard')
              })
@@ -81,45 +41,7 @@ export default function Home() {
 
 
   return <div>
-    <button onClick={handleAskNotifications}>Ask Notification</button>
 
-    <div onClick={copyToClipboard}>{token}</div>
-    <form>
-      <label>Delay</label>
-      <input
-        type="number"
-        onChange={(e) => {
-          const value = e.target.value;
-          console.log(Number(value))
-          setDelay(value)
-        }}
-        value={delay}
-      />
-
-      <label>Title</label>
-      <input type="text" onChange={(e) => {
-        setTitle(e.target.value)
-      }} value={title}/>
-
-      <label>Body</label>
-      <input type="text" onChange={(e) => {
-        setBody(e.target.value)
-      }} value={body}/>
-    </form>
-    <button onClick={async () => {
-      await fetch('/api/send-push-notification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          registrationToken: token,
-          title: title,
-          body: body,
-          delay: Number(delay) ?? 0
-        })
-      })
-    }}>Send Notification
-    </button>
+    <MyForm/>
   </div>;
 }
