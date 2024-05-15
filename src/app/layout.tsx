@@ -16,7 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <link rel="manifest" href="/manifest.json" crossOrigin="use-credentials"/>
+    <body className={inter.className}>{children}</body>
     </html>
   );
 }
