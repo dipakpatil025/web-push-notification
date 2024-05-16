@@ -4,6 +4,8 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { useEffect, useState } from "react";
 import firebaseApp from "@/utils/firebase/firebase";
 import { MyForm } from "@/components/my-form";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Home() {
 
@@ -16,7 +18,7 @@ export default function Home() {
         console.log('Foreground push notification received:', payload.data);
         let notificationTitle, notificationBody;
 
-        if (!payload.data) return alert("Noo data received")
+        if (!payload.data) return toast.error("Noo data received")
 
         if (payload.data.title && payload.data.body) {
           notificationTitle = `FCM: ${payload.data.title}`;
@@ -29,7 +31,7 @@ export default function Home() {
           notificationBody = 'Default Body';
         }
 
-        alert(JSON.stringify({
+        toast.success(JSON.stringify({
           title: notificationTitle,
           body: notificationBody
         }, null, 2));
@@ -44,5 +46,6 @@ export default function Home() {
 
   return <div>
     <MyForm/>
+    <ToastContainer />
   </div>;
 }

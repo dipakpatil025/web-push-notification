@@ -8,11 +8,11 @@ import firebaseApp from "@/utils/firebase/firebase";
 import { CopyIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 type TMyForm = {}
 
 export function MyForm(props: TMyForm) {
-
 
   const [delay, setDelay] = useState<number | null>(null)
   const [title, setTitle] = useState('')
@@ -26,7 +26,8 @@ export function MyForm(props: TMyForm) {
   useLayoutEffect(() => {
     if ("Notification" in window) {
       setPermission(Notification.permission)
-      if(Notification.permission === "granted") {
+      if (Notification.permission === "granted") {
+        toast.info("Already granted")
         void generateToken()
       }
     }
@@ -51,6 +52,7 @@ export function MyForm(props: TMyForm) {
           if (err.toString() === error) {
             return await getTokenWithRetry();
           } else {
+            toast.error("Token generation failed")
             return ""
           }
         }
@@ -88,10 +90,10 @@ export function MyForm(props: TMyForm) {
           if (permission === "granted") {
             console.log('granted')
             setPermission('granted')
-            alert("Thanks for allowing notifications")
+            toast.success("Thanks for allowing notifications")
             await generateToken()
           } else if (permission === 'denied') {
-            alert("You denied permission")
+            toast.error("You denied permission")
             setPermission('denied')
           } else {
             console.log('Not granted')
@@ -194,10 +196,10 @@ export function MyForm(props: TMyForm) {
               onClick={() => {
                 navigator.clipboard.writeText((token).toString())
                   .then(() => {
-                    alert('Copied to clipboard')
+                    toast.info('Copied to clipboard')
                   })
                   .catch((error: string) => {
-                    alert(`Failed copied to clipboard ${error}`)
+                    toast.error(`Failed copied to clipboard ${error}`)
                   });
               }}
             >
