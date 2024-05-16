@@ -1,7 +1,7 @@
 'use client';
 
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { useEffect, useState } from "react";
+import { getMessaging, onMessage } from "firebase/messaging";
+import { useEffect } from "react";
 import firebaseApp from "@/utils/firebase/firebase";
 import { MyForm } from "@/components/my-form";
 
@@ -13,13 +13,26 @@ export default function Home() {
       const messaging = getMessaging(firebaseApp);
 
       const unsubscribe = onMessage(messaging, (payload) => {
-        console.log('Foreground push notification received:', payload);
+
+        let notificationTitle, notificationBody;
+
+        if (!payload.data) return alert("No payload data available")
+
+        if (payload.data.title && payload.data.body) {
+          notificationTitle = `FCM: ${payload.data.title}`;
+          notificationBody = `FCM: ${payload.data.body}`;
+        } else if (payload.data['pinpoint.notification.title'] && payload.data['pinpoint.notification.body']) {
+          notificationTitle = `AWS: ${payload.data['pinpoint.notification.title']}`;
+          notificationBody = `AWS: ${payload.data['pinpoint.notification.body']}`;
+        } else {
+          notificationTitle = 'Default Title';
+          notificationBody = 'Default Body';
+        }
+
         alert(JSON.stringify({
-          title: payload.notification?.title,
-          body: payload.notification?.body
+          title: notificationTitle,
+          body: notificationBody
         }, null, 2));
-        // Handle the received push notification while the app is in the foreground
-        // You can display a notification or update the UI based on the payload
       });
 
       return () => {
@@ -27,18 +40,6 @@ export default function Home() {
       };
     }
   }, []);
-
-
-  function copyToClipboard() {
-    navigator.clipboard.writeText(('token').toString())
-             .then(() => {
-               alert('Copied to clipboard')
-             })
-             .catch((error: string) => {
-               alert(`Failed copied to clipboard ${error}`)
-             });
-  }
-
 
   return <div>
 
