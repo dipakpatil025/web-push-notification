@@ -64,7 +64,7 @@ export const POST = async (req: NextRequest) => {
     const payload = JSON.stringify({
       message: {
         token: registrationToken,
-        notification: { title, body }
+        data: { title, body }
       }
     });
 

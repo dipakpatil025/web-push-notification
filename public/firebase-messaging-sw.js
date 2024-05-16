@@ -17,16 +17,27 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  console.log(
-    '[firebase-messaging-sw.js] Received background message ',
-    payload
-  );
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: './next.svg',
-  };
-  self.registration.hideNotification();
+    console.log('Received background message either AWS/FCM ', payload.data);
 
-  // self.registration.showNotification(notificationTitle, notificationOptions);
+    let notificationTitle, notificationBody;
+
+    if (payload.data.title && payload.data.body) {
+        notificationTitle = `FCM: ${payload.data.title}`;
+        notificationBody = `FCM: ${payload.data.body}`;
+    }
+    else if (payload.data['pinpoint.notification.title'] && payload.data['pinpoint.notification.body']) {
+        notificationTitle = `AWS: ${payload.data['pinpoint.notification.title']}`;
+        notificationBody = `AWS: ${payload.data['pinpoint.notification.body']}`;
+    }
+    else {
+        notificationTitle = 'Default Title';
+        notificationBody = 'Default Body';
+    }
+
+    const notificationOptions = {
+        body: notificationBody,
+        icon: './icon-192x192.png',
+    };
+
+    self.registration.showNotification(notificationTitle, notificationOptions);
 });
