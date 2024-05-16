@@ -189,7 +189,6 @@ export function MyForm(props: TMyForm) {
             />
             <Button
               className="ml-2"
-              disabled
               size="icon"
               variant="outline"
               onClick={() => {
