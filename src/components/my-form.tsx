@@ -8,6 +8,7 @@ import { getMessaging, getToken } from "firebase/messaging";
 import firebaseApp from "@/utils/firebase/firebase";
 import { CopyIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 type TMyForm = {}
 
@@ -174,10 +175,10 @@ export function MyForm(props: TMyForm) {
               onClick={() => {
                 navigator.clipboard.writeText((token).toString())
                          .then(() => {
-                           alert('Copied to clipboard')
+                           toast.info('Copied to clipboard')
                          })
                          .catch((error: string) => {
-                           alert(`Failed copied to clipboard ${error}`)
+                           toast.error(`Failed copied to clipboard ${error}`)
                          });
               }}
             >
